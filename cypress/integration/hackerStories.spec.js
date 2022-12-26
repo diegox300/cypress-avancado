@@ -2,6 +2,34 @@ describe('Hacker Stories', () => {
   beforeEach(() => {
     cy.visit('/')
 
+    // teste de requisição
+    cy.intercept({
+      method: 'GET',
+      pathname: '**/search',
+      query: {
+        query: 'React',
+        page: '0'
+      }
+    }).as('getPesquisaReact')
+
+    cy.intercept({
+      method: 'GET',
+      pathname: '**/search',
+      query: {
+        query: 'React',
+        page: '1'
+      }
+    }).as('getPesquisaReact1')
+
+    cy.intercept({
+      method: 'GET',
+      pathname: '**/search',
+      query: {
+        query: 'Cypress',
+        page: '0'
+      }
+    }).as('getPesquisaCypress')
+
     cy.assertLoadingIsShownAndHidden()
     cy.contains('More').should('be.visible')
   })
@@ -26,7 +54,7 @@ describe('Hacker Stories', () => {
       cy.contains('More').click()
 
       cy.assertLoadingIsShownAndHidden()
-
+      cy.wait('@getPesquisaReact1')
       cy.get('.item').should('have.length', 40)
     })
 
@@ -77,8 +105,10 @@ describe('Hacker Stories', () => {
         .type(`${newTerm}{enter}`)
 
       cy.assertLoadingIsShownAndHidden()
+      cy.wait('@getPesquisaCypress')
 
       cy.get('.item').should('have.length', 20)
+
       cy.get('.item')
         .first()
         .should('contain', newTerm)
@@ -93,6 +123,7 @@ describe('Hacker Stories', () => {
         .click()
 
       cy.assertLoadingIsShownAndHidden()
+      cy.wait('@getPesquisaCypress')
 
       cy.get('.item').should('have.length', 20)
       cy.get('.item')
@@ -108,6 +139,7 @@ describe('Hacker Stories', () => {
           .type(`${newTerm}{enter}`)
 
         cy.assertLoadingIsShownAndHidden()
+        cy.wait('@getPesquisaCypress')
 
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
